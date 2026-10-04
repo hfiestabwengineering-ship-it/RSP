@@ -3940,160 +3940,423 @@ return Plotly;
   };
 })(window);
   </script>
+
   <style>
-    body { font-family: Arial, sans-serif; margin: 16px; color: #222; background: #fafafa; }
-    h1 { margin: 0 0 12px 0; font-size: 24px; }
-    .panel { background: white; border: 1px solid #ddd; border-radius: 10px; padding: 14px; margin-bottom: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px 14px; align-items: start; }
+    :root {
+      --bg: #f1f5f9; --panel: #ffffff; --border: #e2e8f0; --text: #0f172a; --muted: #64748b;
+      --accent: #2563eb; --accent-2: #1d4ed8; --ok: #16a34a; --warn: #d97706; --bad: #dc2626;
+      --radius: 10px; --shadow: 0 1px 2px rgba(15,23,42,.05), 0 1px 3px rgba(15,23,42,.06);
+      --sidebar-w: 352px;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body { font-family: "Segoe UI", system-ui, -apple-system, Arial, sans-serif; margin: 0; color: var(--text); background: var(--bg); display: flex; flex-direction: column; overflow: hidden; }
+
+    /* ---------- header ---------- */
+    .app-header { display: flex; align-items: center; gap: 14px; padding: 10px 18px; background: var(--panel); border-bottom: 1px solid var(--border); flex: 0 0 auto; }
+    .brand { display: flex; align-items: center; gap: 11px; }
+    .brand-badge { width: 34px; height: 34px; border-radius: 9px; background: linear-gradient(135deg, #2563eb, #0ea5e9); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 15px; letter-spacing: .5px; }
+    .brand-title { font-size: 16px; font-weight: 700; line-height: 1.15; }
+    .brand-sub { font-size: 12px; color: var(--muted); }
+    .header-spacer { flex: 1; }
+    .header-actions { display: flex; gap: 8px; }
+
+    /* ---------- layout ---------- */
+    .app-main { display: flex; flex: 1 1 auto; min-height: 0; }
+    .sidebar { width: var(--sidebar-w); flex: 0 0 auto; overflow-y: auto; padding: 14px; border-right: 1px solid var(--border); background: #f8fafc; }
+    .content { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; overflow: hidden; }
+
+    /* ---------- cards / sections ---------- */
+    .card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 12px; overflow: hidden; }
+    .card-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 14px; cursor: pointer; user-select: none; }
+    .card-head h3 { margin: 0; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: #334155; display: flex; align-items: center; gap: 8px; }
+    .card-head .chev { font-size: 11px; color: var(--muted); transition: transform .15s; }
+    .card.collapsed .chev { transform: rotate(-90deg); }
+    .card-body { padding: 4px 14px 14px; }
+    .card.collapsed .card-body { display: none; }
+    .card-note { font-size: 12px; color: var(--muted); margin-top: 8px; line-height: 1.45; }
+    .panel { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 14px; margin-bottom: 12px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px 12px; align-items: start; }
     .subgrid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
     .box-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px 14px; align-items: start; }
-    label { display: block; font-size: 13px; margin-bottom: 4px; font-weight: 600; }
-    input, select, textarea { width: 100%; box-sizing: border-box; padding: 8px; border: 1px solid #bbb; border-radius: 6px; font-size: 14px; }
-    textarea { min-height: 170px; font-family: Consolas, monospace; resize: vertical; }
-    button { padding: 10px 14px; border: none; border-radius: 8px; background: #2563eb; color: white; font-size: 14px; cursor: pointer; margin-right: 8px; margin-top: 8px; }
-    button.secondary { background: #6b7280; }
+    label { display: block; font-size: 12px; margin-bottom: 4px; font-weight: 600; color: #334155; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid #cbd5e1; border-radius: 7px; font-size: 13px; background: #fff; color: var(--text); }
+    input:focus, select:focus, textarea:focus { outline: 2px solid #bfdbfe; border-color: var(--accent); }
+    textarea { min-height: 150px; font-family: Consolas, "Cascadia Mono", monospace; font-size: 12.5px; resize: vertical; line-height: 1.5; }
+    .muted { color: var(--muted); font-size: 12px; line-height: 1.45; }
+
+    /* ---------- buttons ---------- */
+    button { padding: 8px 14px; border: none; border-radius: 8px; background: var(--accent); color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; margin-right: 8px; margin-top: 8px; transition: background .12s; }
+    button:hover { background: var(--accent-2); }
+    button.secondary { background: #e2e8f0; color: #1e293b; }
+    button.secondary:hover { background: #cbd5e1; }
     button.boxgo { background: #0f766e; }
-    .plots { display: grid; grid-template-columns: 1fr; gap: 14px; }
-    .plot-box { background: white; border: 1px solid #ddd; border-radius: 10px; padding: 10px; }
-    .plot { width: 100%; height: 780px; }
-    #scene-plot { height: 860px; }
-    #heatmap-plot { height: 1220px; }
-    .status { white-space: pre-wrap; font-family: Consolas, monospace; font-size: 13px; line-height: 1.45; background: #0f172a; color: #e5e7eb; border-radius: 8px; padding: 12px; min-height: 180px; }
-    .muted { color: #555; font-size: 13px; }
+    button.boxgo:hover { background: #115e59; }
+    button.ghost { background: transparent; color: var(--accent); padding: 4px 8px; margin: 0; }
+    button.ghost:hover { background: #eff6ff; }
+    .btn-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .btn-row button { margin: 0; }
 
-    .export-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px 14px; align-items: end; }
-    .export-actions button { margin-top: 4px; }
-    body.presentation-active .panel:not(.export-panel),
-    body.presentation-active h1 { display: none; }
-    body.presentation-active { margin: 0; background: transparent; }
+    /* ---------- examples ---------- */
+    .ex-list { display: flex; flex-direction: column; gap: 7px; }
+    .ex-item { display: flex; gap: 10px; align-items: flex-start; padding: 9px 10px; border: 1px solid var(--border); border-radius: 8px; background: #f8fafc; cursor: pointer; transition: border-color .12s, background .12s; }
+    .ex-item:hover { border-color: var(--accent); background: #eff6ff; }
+    .ex-ico { width: 26px; height: 26px; border-radius: 7px; background: #dbeafe; color: var(--accent-2); display: flex; align-items: center; justify-content: center; font-size: 14px; flex: 0 0 auto; }
+    .ex-name { font-size: 12.5px; font-weight: 700; }
+    .ex-desc { font-size: 11.5px; color: var(--muted); line-height: 1.35; margin-top: 1px; }
+
+    /* ---------- LPL presets ---------- */
+    .preset-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 4px; }
+    .preset-btn { padding: 6px 4px; font-size: 11.5px; }
+
+    /* ---------- tabs ---------- */
+    .tabs { display: flex; gap: 4px; padding: 10px 14px 0; border-bottom: 1px solid var(--border); background: var(--panel); flex: 0 0 auto; }
+    .tab { padding: 8px 18px; border: 1px solid transparent; border-bottom: none; border-radius: 8px 8px 0 0; background: transparent; color: var(--muted); font-weight: 600; font-size: 13px; margin: 0; cursor: pointer; }
+    .tab:hover { color: var(--text); background: #f1f5f9; }
+    .tab.active { background: var(--bg); border-color: var(--border); color: var(--accent-2); }
+    .tab .k { font-size: 10px; color: var(--muted); margin-left: 5px; font-weight: 400; }
+
+    /* ---------- results card ---------- */
+    .results-card { margin: 12px 14px 0; flex: 0 0 auto; }
+    .res-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px 18px; }
+    .res-item { font-size: 12px; color: var(--muted); }
+    .res-item b { display: block; font-size: 14px; color: var(--text); margin-top: 1px; font-variant-numeric: tabular-nums; }
+    .res-item b.ok { color: var(--ok); }
+    .res-item b.bad { color: var(--bad); }
+    .legend-dots { display: flex; gap: 12px; font-size: 11px; color: var(--muted); margin-top: 9px; flex-wrap: wrap; }
+    .legend-dots span { display: inline-flex; align-items: center; gap: 5px; }
+    .dot { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+
+    /* ---------- plots ---------- */
+    .plots { display: grid; grid-template-columns: 1fr; gap: 14px; padding: 12px 14px; overflow-y: auto; flex: 1 1 auto; min-height: 0; }
+    .plot-box { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 10px; }
+    .plot { width: 100%; height: 720px; }
+    #scene-plot { height: 760px; }
+    #heatmap-plot { height: 860px; }
+    .view-hidden { display: none !important; }
+
+    /* ---------- status ---------- */
+    .status-wrap { margin: 0 14px 12px; flex: 0 0 auto; }
+    .status { white-space: pre-wrap; font-family: Consolas, "Cascadia Mono", monospace; font-size: 12px; line-height: 1.45; background: #0f172a; color: #e5e7eb; border-radius: 8px; padding: 10px 12px; max-height: 150px; overflow-y: auto; }
+
+    /* ---------- export ---------- */
+    .export-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; align-items: end; }
+    .export-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .export-actions button { margin: 0; }
+
+    /* ---------- modals ---------- */
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(15,23,42,.55); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+    .modal-backdrop.open { display: flex; }
+    .modal { background: #fff; border-radius: 14px; max-width: 780px; width: 100%; max-height: 86vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,.3); }
+    .modal-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: #fff; z-index: 1; }
+    .modal-head h2 { margin: 0; font-size: 17px; }
+    .modal-close { background: #f1f5f9; border: none; width: 30px; height: 30px; border-radius: 8px; font-size: 15px; cursor: pointer; color: #475569; margin: 0; padding: 0; }
+    .modal-close:hover { background: #e2e8f0; }
+    .modal-body { padding: 16px 20px 20px; font-size: 13.5px; line-height: 1.6; }
+    .modal-body h4 { margin: 18px 0 8px; font-size: 14px; color: var(--accent-2); }
+    .modal-body h4:first-child { margin-top: 0; }
+    .modal-body p { margin: 8px 0; }
+    .modal-body ul { margin: 8px 0; padding-left: 20px; }
+    .modal-body li { margin: 5px 0; }
+    .glossary { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+    .glossary td { border: 1px solid var(--border); padding: 7px 10px; vertical-align: top; }
+    .glossary td:first-child { font-weight: 700; white-space: nowrap; color: var(--accent-2); width: 170px; }
+    .kbd { background: #f1f5f9; border: 1px solid var(--border); border-radius: 5px; padding: 1px 6px; font-family: Consolas, monospace; font-size: 12px; }
+
+    /* ---------- presentation mode ---------- */
+    body.presentation-active .sidebar,
+    body.presentation-active .app-header,
+    body.presentation-active .results-card,
+    body.presentation-active .status-wrap,
+    body.presentation-active .tabs { display: none; }
+    body.presentation-active { background: transparent; }
+    body.presentation-active .content { background: transparent; }
+    body.presentation-active .plots { padding: 0; overflow: visible; }
     body.presentation-active .plot-box { border: none; box-shadow: none; background: transparent; }
-  </style>
-</head>
-<body>
-  <h1>Spherical Patch Dashboard - Any Number of Poles</h1>
 
-  <div class="panel">
-    <label>Pole list (one per line, format: x,y,h)</label>
-    <textarea id="poles-input">0,0,11
+    /* ---------- responsive ---------- */
+    @media (max-width: 1000px) {
+      body { overflow: auto; }
+      .app-main { flex-direction: column; }
+      .sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border); max-height: none; }
+      .content { overflow: visible; }
+      .plots { overflow: visible; }
+    }
+  </style>
+
+<body>
+  <header class="app-header">
+    <div class="brand">
+      <div class="brand-badge">RS</div>
+      <div>
+        <div class="brand-title">Spherical Patch Dashboard</div>
+        <div class="brand-sub">Rolling-sphere lightning protection &middot; any number of poles</div>
+      </div>
+    </div>
+    <div class="header-spacer"></div>
+    <div class="header-actions">
+      <button type="button" class="secondary" id="btn-help">? Help</button>
+      <button type="button" class="secondary" id="btn-examples">Examples</button>
+      <button type="button" class="secondary" id="save-scenario">Save</button>
+      <button type="button" class="secondary" id="load-scenario">Load</button>
+      <input id="scenario-file-input" type="file" accept=".json" style="display:none;" />
+      <button type="button" class="secondary" id="export-html">Export HTML</button>
+      <button type="button" class="secondary" id="reset-defaults">Reset</button>
+    </div>
+  </header>
+
+  <div class="app-main">
+    <aside class="sidebar">
+
+      <div class="card">
+        <div class="card-head" data-toggle-card><h3>1 &middot; Poles (air terminals)</h3><span class="chev">&#9660;</span></div>
+        <div class="card-body">
+          <label>Pole list &mdash; one per line: x, y, h</label>
+          <textarea id="poles-input">0,0,11
 21.443,0,11
 21.443,18.715,12
 0,18.715,12
 10,9,11.5
 32,9,12</textarea>
-    <div class="muted" style="margin-top:8px;">
-      Enter 3 or more poles. This version uses automatic Delaunay triangulation so interior points can participate in the mesh.
-    </div>
-  </div>
-
-  <div class="panel">
-    <div class="grid">
-      <div><label>Sphere radius R</label><input id="radius" type="number" step="any" value="20" /></div>
-      <div><label>Heatmap label step</label><input id="label-step" type="number" step="1" value="14" /></div>
-      <div><label>Contour interval (z_sphere)</label><input id="contour-step" type="number" step="any" value="1" /></div>
-      <div>
-        <label>Decimal format</label>
-        <select id="decimal-mode">
-          <option value="fixed">Fixed (2 decimals)</option>
-          <option value="contour">Auto by contour interval</option>
-          <option value="adaptive" selected>Adaptive by value</option>
-        </select>
+          <div class="card-note">Each pole is an air terminal: position (x, y) in the ground plane and height h. Enter 3 or more poles &mdash; the tool triangulates them automatically (Delaunay), so interior poles join the mesh too. Lines starting with <span class="kbd">*</span> or <span class="kbd">\</span> are ignored as notes.</div>
+        </div>
       </div>
-    </div>
-    <button id="update-geometry">Update geometry</button>
-    <button id="save-scenario" class="secondary">Save Scenario</button>
-    <button id="load-scenario" class="secondary">Load Scenario</button>
-    <button id="export-html" class="secondary">Export Self-Contained HTML</button>
-    <input id="scenario-file-input" type="file" accept=".json" style="display:none;" />
-    <button id="reset-defaults" class="secondary">Reset defaults</button>
-    <div class="muted" style="margin-top:8px;">Geometry changes require clicking Update geometry.</div>
-  </div>
 
+      <div class="card">
+        <div class="card-head" data-toggle-card><h3>2 &middot; Sphere &amp; model</h3><span class="chev">&#9660;</span></div>
+        <div class="card-body">
+          <label>Lightning protection level (IEC 62305-3)</label>
+          <div class="preset-row">
+            <button type="button" class="secondary preset-btn" data-lpl="I">I &middot; 20 m</button>
+            <button type="button" class="secondary preset-btn" data-lpl="II">II &middot; 45 m</button>
+            <button type="button" class="secondary preset-btn" data-lpl="III">III &middot; 60 m</button>
+            <button type="button" class="secondary preset-btn" data-lpl="IV">IV &middot; 100 m</button>
+          </div>
+          <div style="height:10px"></div>
+          <div class="grid">
+            <div><label>Sphere radius R (m)</label><input id="radius" type="number" step="any" value="20" /></div>
+            <div><label>Heatmap label step</label><input id="label-step" type="number" step="1" value="14" /></div>
+            <div><label>Contour interval (z_sphere)</label><input id="contour-step" type="number" step="any" value="1" /></div>
+            <div>
+              <label>Decimal format</label>
+              <select id="decimal-mode">
+                <option value="fixed">Fixed (2 decimals)</option>
+                <option value="contour">Auto by contour interval</option>
+                <option value="adaptive" selected>Adaptive by value</option>
+              </select>
+            </div>
+          </div>
+          <div class="btn-row">
+            <button id="update-geometry">Update geometry</button>
+          </div>
+          <div class="card-note">R is the rolling-sphere radius. Click <b>Update geometry</b> after changing poles, R, boxes or columns. Display options below update live.</div>
+        </div>
+      </div>
 
-  <div class="panel export-panel">
-    <h2 style="font-size:18px;margin:0 0 10px 0;">Export Image</h2>
-    <div class="export-grid">
-      <div><label>Export sizing mode</label><select id="export-sizing-mode"><option value="scaled" selected>Scaled drawing size</option><option value="manual">Manual pixel size</option></select></div>
-      <div><label>Drawing scale</label><div class="subgrid2"><input id="scale-paper-mm" type="number" step="any" value="1" title="Paper length in mm" /><input id="scale-real-mm" type="number" step="any" value="250" title="Real-world length in mm" /></div><div class="muted">Example: 1 mm = 250 mm</div></div>
-      <div><label>Model coordinate unit</label><select id="model-unit"><option value="mm">mm</option><option value="m" selected>m</option></select></div>
-      <div><label>Output DPI</label><input id="export-dpi" type="number" step="1" value="300" /></div>
-      <div><label>Manual width (px)</label><input id="export-width" type="number" step="1" value="2400" /></div>
-      <div><label>Manual height (px)</label><input id="export-height" type="number" step="1" value="1600" /></div>
-      <div><label>Plotly export scale</label><input id="export-scale" type="number" step="any" value="1" /></div>
-      <div><label>Transparent background</label><select id="transparent-export"><option value="yes" selected>Yes</option><option value="no">No</option></select></div>
-      <div><label>Presentation export mode</label><select id="presentation-export-mode"><option value="off">Off</option><option value="on" selected>On - hide labels/UI in exported image</option></select></div>
-      <div><label>Overlay export labels</label><select id="overlay-export-labels"><option value="show" selected>Show labels in overlay export</option><option value="hide">Hide labels in overlay export</option></select></div>
-    </div>
-    <div class="export-actions" style="margin-top:8px;">
-      <button type="button" id="save-scene-png" class="secondary">Save 3D PNG</button>
-      <button type="button" id="save-scene-svg" class="secondary">Save 3D SVG</button>
-      <button type="button" id="save-heatmap-png" class="secondary">Save Heatmap PNG</button>
-      <button type="button" id="save-heatmap-svg" class="secondary">Save Heatmap SVG</button>\n      <button type="button" id="save-heatmap-overlay-png" class="secondary">Save Overlay PNG (True Scale)</button>\n      <button type="button" id="save-heatmap-overlay-svg" class="secondary">Save Overlay SVG (True Scale)</button>
-      <button type="button" id="toggle-presentation-view" class="secondary">Toggle Presentation View</button>
-    </div>
-    <div class="muted" style="margin-top:8px;">Scaled export uses current plot extents. Example: model unit m and 1 mm = 250 mm exports at 1:250 using the selected DPI. Use Overlay export for floor-plan alignment: it locks equal X/Y scale, removes axes/margins/colorbars, and exports using the exact model aspect ratio.</div>
-  </div>
+      <div class="card">
+        <div class="card-head" data-toggle-card><h3>3 &middot; Display</h3><span class="chev">&#9660;</span></div>
+        <div class="card-body">
+          <div class="grid">
+            <div><label>Heatmap display</label><select id="display-mode"><option value="both">Contour + Numbers</option><option value="contour">Contour only</option><option value="numbers">Numbers only</option></select></div>
+            <div><label>Color scale</label><select id="color-scale"><option value="Plasma">Plasma</option><option value="Viridis">Viridis</option><option value="Cividis">Cividis</option><option value="Turbo">Turbo</option><option value="Portland" selected>Portland</option></select></div>
+            <div><label>3D view</label><select id="view-mode"><option value="engineering">Engineering view</option><option value="true-sphere">True sphere view</option></select></div>
+            <div><label>Performance</label><select id="performance-mode"><option value="auto" selected>Auto</option><option value="fast">Fast</option><option value="quality">High quality</option></select></div>
+            <div><label>Show patch spheres</label><select id="show-sphere-mode"><option value="off">Off</option><option value="on">All patch spheres</option><option value="selected">Selected patch sphere</option></select></div>
+            <div><label>Select patch sphere</label><select id="patch-sphere-select"><option value="">Update geometry first</option></select></div>
+            <div><label>Sphere centers (3D)</label><select id="show-sphere-centers"><option value="off" selected>Off</option><option value="on">All patch centers</option><option value="selected">Selected patch center</option></select></div>
+            <div><label>Show patch surfaces</label><select id="show-patch-surfaces"><option value="on" selected>Individual patches</option><option value="merged">Merged patch surface</option><option value="both">Individual + merged</option><option value="off">Off</option></select></div>
+            <div><label>2-pole spheres</label><select id="show-arc-spheres"><option value="off">Off</option><option value="on">All 2-pole spheres</option><option value="only">Only 2-pole spheres</option><option value="selected">Selected 2-pole sphere</option><option value="only-selected">Only selected</option></select></div>
+            <div><label>Select 2-pole sphere</label><select id="arc-sphere-select"><option value="">Update geometry first</option></select></div>
+            <div><label>2-pole arcs (cyan)</label><select id="show-cyan-arcs"><option value="on">On</option><option value="off" selected>Off</option></select></div>
+            <div><label>Lowest point color</label><select id="lowest-color"><option value="red">Red</option><option value="blue">Blue</option><option value="green">Green</option><option value="orange">Orange</option><option value="purple">Purple</option></select></div>
+          </div>
+        </div>
+      </div>
 
-  <div class="panel">
-    <div class="grid">
-      <div><label>Heatmap display mode</label><select id="display-mode"><option value="both">Contour + Numbers</option><option value="contour">Contour only</option><option value="numbers">Numbers only</option></select></div>
-      <div><label>Color scale</label><select id="color-scale"><option value="Plasma">Plasma</option><option value="Viridis">Viridis</option><option value="Cividis">Cividis</option><option value="Turbo">Turbo</option><option value="Portland" selected>Portland</option></select></div>
-      <div><label>3D View</label><select id="view-mode"><option value="engineering">Engineering view</option><option value="true-sphere">True sphere view</option></select></div>
-      <div><label>Show patch spheres</label><select id="show-sphere-mode"><option value="off">Off</option><option value="on">All patch spheres</option><option value="selected">Selected patch sphere</option></select></div>
-      <div><label>Show sphere centers (3D only)</label><select id="show-sphere-centers"><option value="off" selected>Off</option><option value="on">All patch centers</option><option value="selected">Selected patch center</option></select></div>
-      <div><label>Select patch sphere</label><select id="patch-sphere-select"><option value="">Update geometry first</option></select></div>
-      <div><label>Show patch surfaces</label><select id="show-patch-surfaces"><option value="on" selected>Individual patches</option><option value="merged">Merged patch surface</option><option value="both">Individual + merged patch surface</option><option value="off">Off</option></select></div>
-      <div><label>Show 2-pole spheres</label><select id="show-arc-spheres"><option value="off">Off</option><option value="on">All 2-pole spheres</option><option value="only">Only all 2-pole spheres</option><option value="selected">Selected 2-pole sphere</option><option value="only-selected">Only selected 2-pole sphere</option></select></div>
-      <div><label>Select 2-pole sphere</label><select id="arc-sphere-select"><option value="">Update geometry first</option></select></div>
-      <div><label>Show cyan 2-pole arcs</label><select id="show-cyan-arcs"><option value="on">On</option><option value="off" selected>Off</option></select></div>
-      <div><label>Inverted funnels</label><select id="funnel-mode"><option value="off">Off</option><option value="individual">Outer poles - individual funnels</option><option value="blanket">Outer poles - continuous blanket</option><option value="both">Outer poles - both individual + blanket</option><option value="inner-individual">Inner poles - individual funnels</option><option value="inner-blanket">Inner poles - continuous blanket</option><option value="inner-both">Inner poles - both individual + blanket</option><option value="selected-inner-individual">Selected inner pole - individual funnel</option><option value="selected-inner-blanket">Selected inner pole - blanket</option><option value="selected-inner-both">Selected inner pole - both individual + blanket</option><option value="all-individual">All poles - individual funnels</option><option value="all-blanket">All poles - continuous blanket</option><option value="all-both">All poles - both individual + blanket</option></select></div>
-      <div><label>Select inner pole for funnel</label><select id="inner-funnel-pole-select"><option value="">Update geometry first</option></select></div>
-      <div><label>Protected-zone outline</label><select id="protected-zone-outline"><option value="off">Off</option><option value="on">Show outline</option></select></div>
-      <div><label>Merge patch + funnel surfaces</label><select id="merge-envelope-mode"><option value="off">Off</option><option value="on">Show merged envelope</option><option value="only">Only merged envelope</option></select></div>
-      <div><label>Lowest Point Color</label><select id="lowest-color"><option value="red">Red</option><option value="blue">Blue</option><option value="green">Green</option><option value="orange">Orange</option><option value="purple">Purple</option></select></div>
-      <div><label>Performance Mode</label><select id="performance-mode"><option value="auto" selected>Auto</option><option value="fast">Fast</option><option value="quality">High Quality</option></select></div>
-    </div>
-    <div class="muted" style="margin-top:8px;">These controls affect only the visualization and update immediately.</div>
-  </div>
+      <div class="card">
+        <div class="card-head" data-toggle-card><h3>4 &middot; Inverted funnels</h3><span class="chev">&#9660;</span></div>
+        <div class="card-body">
+          <div class="grid">
+            <div><label>Funnel mode</label><select id="funnel-mode"><option value="off">Off</option><option value="individual">Outer poles &ndash; individual funnels</option><option value="blanket">Outer poles &ndash; continuous blanket</option><option value="both">Outer poles &ndash; individual + blanket</option><option value="inner-individual">Inner poles &ndash; individual</option><option value="inner-blanket">Inner poles &ndash; blanket</option><option value="inner-both">Inner poles &ndash; both</option><option value="selected-inner-individual">Selected inner &ndash; individual</option><option value="selected-inner-blanket">Selected inner &ndash; blanket</option><option value="selected-inner-both">Selected inner &ndash; both</option><option value="all-individual">All poles &ndash; individual</option><option value="all-blanket">All poles &ndash; blanket</option><option value="all-both">All poles &ndash; both</option></select></div>
+            <div><label>Inner pole for funnel</label><select id="inner-funnel-pole-select"><option value="">Update geometry first</option></select></div>
+            <div><label>Protected-zone outline</label><select id="protected-zone-outline"><option value="off">Off</option><option value="on">Show outline</option></select></div>
+            <div><label>Merge patch + funnel</label><select id="merge-envelope-mode"><option value="off">Off</option><option value="on">Show merged envelope</option><option value="only">Only merged envelope</option></select></div>
+          </div>
+          <div class="card-note">Inverted funnels extend the protection envelope around each pole (the &ldquo;sagging&rdquo; surface the sphere rolls over). The protected-zone outline traces the exact boundary where the envelope touches the ground.</div>
+        </div>
+      </div>
 
-  <div class="panel">
-    <label>Box list input (one box per line)</label>
-    <textarea id="boxes-list-input" rows="7">box(-5,-5,5,-5,5,5,-5,5,0)  ← single-line
+      <div class="card">
+        <div class="card-head" data-toggle-card><h3>5 &middot; Structures to protect</h3><span class="chev">&#9660;</span></div>
+        <div class="card-body">
+          <label>Boxes (buildings) &mdash; one per line</label>
+          <textarea id="boxes-list-input" rows="7">box(-5,-5,5,-5,5,5,-5,5,0)  &larr; single-line
 
 box(12,4,
 18,4,18,10,
 12,10,2)</textarea>
-    <button id="update-box" class="boxgo">Update boxes</button>
-    <div class="muted" style="margin-top:8px;">
-    Accepted formats:
-    <br>1) x1,y1,x2,y2,x3,y3,x4,y4,H
-    <br>2) box(x1,y1,x2,y2,x3,y3,x4,y4,H)
-    <br>3) multiline inside parentheses, e.g. box(x1,y1,<br>x2,y2,x3,y3,<br>x4,y4,H)
+          <div class="card-note">Accepted formats: <span class="kbd">x1,y1,x2,y2,x3,y3,x4,y4,H</span> or <span class="kbd">box(x1,y1,x2,y2,x3,y3,x4,y4,H)</span> (multi-line inside parentheses is fine). The 4 corners + height H define a rectangular building. The results card tells you whether each structure fits under the protection envelope.</div>
+          <div class="btn-row">
+            <button id="update-box" class="boxgo">Update boxes</button>
+          </div>
+          <div style="height:12px"></div>
+          <label>Cylindrical columns</label>
+          <div id="columns-container"></div>
+          <div class="btn-row">
+            <button id="add-column" class="secondary">+ Add column</button>
+            <button id="update-columns" class="boxgo">Update columns</button>
+          </div>
+          <div class="card-note">Each column: center (x, y), height H, radius R.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head" data-toggle-card><h3>6 &middot; Test point</h3><span class="chev">&#9660;</span></div>
+        <div class="card-body">
+          <div class="grid">
+            <div><label>x</label><input id="test-x" type="number" step="any" /></div>
+            <div><label>y</label><input id="test-y" type="number" step="any" /></div>
+            <div><label>z</label><input id="test-z" type="number" step="any" /></div>
+          </div>
+          <div class="btn-row">
+            <button id="plot-point">Plot / update test point</button>
+            <button id="clear-point" class="secondary">Clear</button>
+          </div>
+          <div class="card-note">Check whether an arbitrary point is above or below the protection surface.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head" data-toggle-card><h3>7 &middot; Export image</h3><span class="chev">&#9660;</span></div>
+        <div class="card-body">
+          <div class="export-grid">
+            <div><label>Export sizing</label><select id="export-sizing-mode"><option value="scaled" selected>Scaled drawing size</option><option value="manual">Manual pixel size</option></select></div>
+            <div><label>Drawing scale</label><div class="subgrid2"><input id="scale-paper-mm" type="number" step="any" value="1" title="Paper length in mm" /><input id="scale-real-mm" type="number" step="any" value="250" title="Real-world length in mm" /></div><div class="muted">Example: 1 mm = 250 mm</div></div>
+            <div><label>Model coordinate unit</label><select id="model-unit"><option value="mm">mm</option><option value="m" selected>m</option></select></div>
+            <div><label>Output DPI</label><input id="export-dpi" type="number" step="1" value="300" /></div>
+            <div><label>Manual width (px)</label><input id="export-width" type="number" step="1" value="2400" /></div>
+            <div><label>Manual height (px)</label><input id="export-height" type="number" step="1" value="1600" /></div>
+            <div><label>Plotly export scale</label><input id="export-scale" type="number" step="any" value="1" /></div>
+            <div><label>Transparent background</label><select id="transparent-export"><option value="yes" selected>Yes</option><option value="no">No</option></select></div>
+            <div><label>Presentation export</label><select id="presentation-export-mode"><option value="off">Off</option><option value="on" selected>On &ndash; hide labels/UI</option></select></div>
+            <div><label>Overlay export labels</label><select id="overlay-export-labels"><option value="show" selected>Show labels in overlay export</option><option value="hide">Hide labels in overlay export</option></select></div>
+          </div>
+          <div class="export-actions">
+            <button type="button" id="save-scene-png" class="secondary">3D PNG</button>
+            <button type="button" id="save-scene-svg" class="secondary">3D SVG</button>
+            <button type="button" id="save-heatmap-png" class="secondary">Heatmap PNG</button>
+            <button type="button" id="save-heatmap-svg" class="secondary">Heatmap SVG</button>
+            <button type="button" id="save-heatmap-overlay-png" class="secondary">Overlay PNG (true scale)</button>
+            <button type="button" id="save-heatmap-overlay-svg" class="secondary">Overlay SVG (true scale)</button>
+            <button type="button" id="toggle-presentation-view" class="secondary">Presentation view</button>
+          </div>
+          <div class="card-note">Scaled export uses current plot extents (e.g. model unit m and 1 mm = 250 mm exports at 1:250 at the chosen DPI). Use <b>Overlay</b> export for floor-plan alignment: it locks equal X/Y scale and uses the exact model aspect ratio.</div>
+        </div>
+      </div>
+
+    </aside>
+
+    <main class="content">
+      <div class="tabs">
+        <button type="button" class="tab active" data-view="both">Both views</button>
+        <button type="button" class="tab" data-view="3d">3D scene <span class="k">drag to orbit</span></button>
+        <button type="button" class="tab" data-view="2d">2D heatmap <span class="k">top view</span></button>
+        <div style="flex:1"></div>
+        <button type="button" class="secondary" id="btn-fit" style="margin:2px 0 2px 0; padding:5px 12px; font-size:12px;">Fit view</button>
+      </div>
+
+      <div class="card results-card" id="results-card">
+        <div class="card-body" style="padding-top:10px;">
+          <div class="res-grid" id="results-grid">
+            <div class="res-item">Poles<b id="res-poles">&mdash;</b></div>
+            <div class="res-item">Patches<b id="res-patches">&mdash;</b></div>
+            <div class="res-item">Sphere radius R<b id="res-radius">&mdash;</b></div>
+            <div class="res-item">Lowest point (z_sphere)<b id="res-lowest">&mdash;</b></div>
+            <div class="res-item">Max sag<b id="res-sag">&mdash;</b></div>
+            <div class="res-item">Structures protected<b id="res-protected">&mdash;</b></div>
+          </div>
+          <div class="legend-dots">
+            <span><span class="dot" style="background:#f97316"></span> pole (air terminal)</span>
+            <span><span class="dot" style="background:#2563eb"></span> protection surface</span>
+            <span><span class="dot" style="background:#16a34a"></span> structure protected</span>
+            <span><span class="dot" style="background:#dc2626"></span> structure NOT protected</span>
+            <span><span class="dot" style="background:#0f172a"></span> lowest point</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="plots">
+        <div class="plot-box" id="scene-plot-box"><div id="scene-plot" class="plot"></div></div>
+        <div class="plot-box" id="heatmap-plot-box"><div id="heatmap-plot" class="plot"></div></div>
+      </div>
+
+      <div class="status-wrap"><div id="status" class="status">Loading&hellip;</div></div>
+    </main>
+  </div>
+
+  <!-- Examples modal -->
+  <div class="modal-backdrop" id="examples-modal">
+    <div class="modal">
+      <div class="modal-head">
+        <h2>Example scenarios</h2>
+        <button type="button" class="modal-close" data-close-modal>&times;</button>
+      </div>
+      <div class="modal-body">
+        <p>Click an example to load it. Each one demonstrates a different way of thinking about rolling-sphere protection.</p>
+        <div class="ex-list" id="examples-list"></div>
+      </div>
     </div>
   </div>
 
-  <div class="panel">
-    <div id="columns-container"></div>
-    <button id="add-column" class="secondary">+ Add column</button>
-    <button id="update-columns" class="boxgo">Update columns</button>
-    <div class="muted" style="margin-top:8px;">Each cylindrical column is defined by center point (x, y), height H, and radius R. The graphs update only when you click Update columns.</div>
-  </div>
-
-  <div class="panel">
-    <div class="grid">
-      <div><label>Test point x</label><input id="test-x" type="number" step="any" /></div>
-      <div><label>Test point y</label><input id="test-y" type="number" step="any" /></div>
-      <div><label>Test point z</label><input id="test-z" type="number" step="any" /></div>
+  <!-- Help modal -->
+  <div class="modal-backdrop" id="help-modal">
+    <div class="modal">
+      <div class="modal-head">
+        <h2>How to use this tool</h2>
+        <button type="button" class="modal-close" data-close-modal>&times;</button>
+      </div>
+      <div class="modal-body">
+        <h4>What is the rolling sphere method?</h4>
+        <p>Imagine a sphere with radius <b>R</b> (the &ldquo;lightning sphere&rdquo;) rolling over the air terminals (poles) of a protection system. Wherever the sphere can touch, a lightning strike could hit. The surface it traces out &mdash; the <b>protection surface</b> &mdash; is what this tool draws. Anything (building, column, person) that stays <b>below</b> that surface is protected.</p>
+        <p>The sphere radius R is set by the required <b>Lightning Protection Level (LPL)</b> per IEC 62305-3:</p>
+        <table class="glossary">
+          <tr><td>LPL I</td><td>R = 20 m &mdash; most critical buildings (hospitals, data centres)</td></tr>
+          <tr><td>LPL II</td><td>R = 45 m &mdash; important buildings</td></tr>
+          <tr><td>LPL III</td><td>R = 60 m &mdash; typical residential / commercial</td></tr>
+          <tr><td>LPL IV</td><td>R = 100 m &mdash; low-risk structures</td></tr>
+        </table>
+        <h4>Quick start</h4>
+        <ul>
+          <li><b>1. Poles</b> &mdash; type your air terminals as <span class="kbd">x, y, height</span>, one per line (minimum 3). The tool triangulates them automatically.</li>
+          <li><b>2. Sphere</b> &mdash; pick an LPL preset or type R directly, then click <b>Update geometry</b>.</li>
+          <li><b>3. Structures</b> &mdash> (optional) add boxes (buildings) and columns you want to protect. The <b>results card</b> above the plots tells you if each one fits under the envelope.</li>
+          <li><b>4. Explore</b> &mdash; use the 3D view to orbit the scene, the 2D heatmap to read heights, and the <b>test point</b> to check any coordinate.</li>
+        </ul>
+        <h4>Reading the plots</h4>
+        <ul>
+          <li><b>3D scene</b> &mdash; the blue/green surface is the protection envelope (each triangle of poles gets its own &ldquo;patch&rdquo; sphere). Orange dots are poles, red &times; marks are the lowest points of each patch. Structures are drawn as glass boxes &mdash; <b>green = protected, red = not protected</b>.</li>
+          <li><b>2D heatmap</b> &mdash; top view of the same surface. Colors show height (z_sphere); contour lines are elevation lines like a topographic map. Dashed rectangles are box footprints, circles are columns.</li>
+          <li><b>Lowest point</b> &mdash; the most critical spot of each patch: the deepest the protection surface dips. If a structure top is below it there, you are safe there.</li>
+        </ul>
+        <h4>Key terms</h4>
+        <table class="glossary">
+          <tr><td>Pole / air terminal</td><td>A vertical conductor (rod, cable, down-conductor top) that attracts the strike. Given as x, y, height.</td></tr>
+          <tr><td>Rolling sphere radius R</td><td>Size of the imaginary sphere; smaller R = stricter protection (higher LPL).</td></tr>
+          <tr><td>Patch</td><td>The protection surface over one triangle of poles. Each patch is the lower part of a sphere through its 3 poles.</td></tr>
+          <tr><td>z_sphere</td><td>Height of the protection surface at a ground position (x, y). Higher = more clearance for structures.</td></tr>
+          <tr><td>Sag</td><td>How far the surface dips below the plane through the 3 poles. Large sag = weak spot.</td></tr>
+          <tr><td>Inverted funnel</td><td>The surface traced by a sphere resting on a single pole. Used to extend protection around individual poles.</td></tr>
+          <tr><td>Protected zone</td><td>Ground area under the envelope where structures are safe. Its outline can be drawn in 2D/3D.</td></tr>
+        </table>
+        <h4>Troubleshooting</h4>
+        <ul>
+          <li><b>&ldquo;Minimum possible radius is &hellip;&rdquo;</b> &mdash; the 3 poles of a triangle are too far apart for your R. Add more poles or increase R.</li>
+          <li><b>Nothing shows</b> &mdash; check that you have at least 3 non-collinear poles and clicked <b>Update geometry</b>.</li>
+          <li><b>Slow with many poles</b> &mdash; set Performance to <b>Fast</b>.</li>
+        </ul>
+      </div>
     </div>
-    <button id="plot-point">Plot / update test point</button>
-    <button id="clear-point" class="secondary">Clear test point</button>
   </div>
-
-  <div class="plots">
-    <div class="plot-box"><div id="scene-plot" class="plot"></div></div>
-    <div class="plot-box"><div id="heatmap-plot" class="plot"></div></div>
-  </div>
-
-  <div class="panel"><div id="status" class="status"></div></div>
 
   <script>
     const BASE_GRID_N = 260;
@@ -7207,5 +7470,446 @@ function createColumnPanel(index, vals){
     currentColumns = readColumnsInputs();
     renderAll();
   </script>
+  <script>
+    /* ============================================================
+       UI LAYER — examples, help, tabs, results, coverage verdicts
+       (added by the UI overhaul; does not modify core computation)
+       ============================================================ */
+
+    const RSP_EXAMPLES = [
+      {
+        id: 'basics',
+        icon: '⚡',
+        name: 'Three-pole basics',
+        desc: 'The smallest possible system: 3 poles form one patch. See how a single sphere through all three defines the protection surface.',
+        radius: 20,
+        poles: `0,0,10
+10,0,10
+5,9,10`,
+        boxes: '',
+        columns: null,
+        display: { 'show-patch-surfaces': 'on', 'funnel-mode': 'off' }
+      },
+      {
+        id: 'roof',
+        icon: '🏠',
+        name: 'Flat roof, interior pole',
+        desc: 'Four corner poles plus one in the middle. The interior pole creates extra patches and lowers the sag in the middle of the roof — watch the heatmap get flatter.',
+        radius: 20,
+        poles: `0,0,12
+20,0,12
+20,14,12
+0,14,12
+10,7,12`,
+        boxes: `box(0,0,20,0,20,14,0,14,10)`,
+        columns: null,
+        display: { 'show-patch-surfaces': 'on', 'funnel-mode': 'off' }
+      },
+      {
+        id: 'building',
+        icon: '🏢',
+        name: 'Protect a building',
+        desc: 'A 2-storey building (H=8 m) under a mast-and-rod system. The results card checks every corner of the roof against the envelope. Try increasing R or pole heights.',
+        radius: 45,
+        poles: `0,0,18
+14,0,18
+14,10,18
+0,10,18
+7,5,15`,
+        boxes: `box(1,1,13,1,13,9,1,9,8)`,
+        columns: null,
+        display: { 'show-patch-surfaces': 'on', 'funnel-mode': 'off' }
+      },
+      {
+        id: 'mast',
+        icon: '🗼',
+        name: 'Tall mast + columns',
+        desc: 'One tall central mast protects a ring of shorter poles and two cylindrical columns (e.g. tanks). Enable the funnels in the sidebar to see each pole\u2019s individual contribution.',
+        radius: 60,
+        poles: `10,10,25
+0,0,10
+20,0,10
+20,20,10
+0,20,10`,
+        boxes: '',
+        columns: [{ colX: 5, colY: 5, colHeight: 6, colRadius: 1.5 }, { colX: 15, colY: 15, colHeight: 4, colRadius: 1 }],
+        display: { 'show-patch-surfaces': 'on', 'funnel-mode': 'all-both' }
+      },
+      {
+        id: 'funnel',
+        icon: '🌪️',
+        name: 'Inverted funnels',
+        desc: 'Funnel mode extended to every pole: each pole contributes its own inverted funnel to the envelope, and the merged envelope shows the union. Compare with funnels off.',
+        radius: 45,
+        poles: `0,0,15
+18,0,15
+18,12,15
+0,12,15
+9,6,12`,
+        boxes: `box(2,2,16,2,16,10,2,10,9)`,
+        columns: null,
+        display: { 'show-patch-surfaces': 'both', 'funnel-mode': 'all-both', 'merge-envelope-mode': 'on', 'protected-zone-outline': 'on' }
+      }
+    ];
+
+    function rspOpenModal(id){ document.getElementById(id).classList.add('open'); }
+    function rspCloseModals(){ document.querySelectorAll('.modal-backdrop.open').forEach(m => m.classList.remove('open')); }
+
+    function rspApplyExample(ex){
+      document.getElementById('poles-input').value = ex.poles;
+      if(ex.poles.trim()) document.getElementById('radius').value = ex.radius;
+      if(ex.boxes !== null) document.getElementById('boxes-list-input').value = ex.boxes;
+      // Make each example fully self-contained: columns: null resets to the
+      // default (zero-height, not counted) so a previous example's columns
+      // don't leak in.
+      if(ex.columns) initializeColumns(ex.columns);
+      else initializeColumns(DEFAULTS.columnTemplates);
+      if(ex.display){
+        Object.keys(ex.display).forEach(k => {
+          const el = document.getElementById(k);
+          if(el) el.value = ex.display[k];
+        });
+      }
+      renderAll();
+      rspCloseModals();
+      if(typeof setStatus === 'function') setStatus('Loaded example: ' + ex.name);
+    }
+
+    function rspInitExamples(){
+      const list = document.getElementById('examples-list');
+      if(!list) return;
+      RSP_EXAMPLES.forEach(ex => {
+        const item = document.createElement('div');
+        item.className = 'ex-item';
+        item.innerHTML = '<div class="ex-ico">' + ex.icon + '</div><div><div class="ex-name">' + ex.name + '</div><div class="ex-desc">' + ex.desc + '</div></div>';
+        item.addEventListener('click', () => rspApplyExample(ex));
+        list.appendChild(item);
+      });
+    }
+
+    /* ---------- tabs ---------- */
+    function rspSetView(view){
+      const scene = document.getElementById('scene-plot-box');
+      const heat = document.getElementById('heatmap-plot-box');
+      if(!scene || !heat) return;
+      scene.classList.toggle('view-hidden', view === '2d');
+      heat.classList.toggle('view-hidden', view === '3d');
+      document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.view === view));
+      try {
+        if(view !== '3d') Plotly.Plots.resize(document.getElementById('heatmap-plot'));
+        if(view !== '2d') Plotly.Plots.resize(document.getElementById('scene-plot'));
+      } catch(e){}
+    }
+
+    /* ---------- results + coverage ---------- */
+    function rspCheckStructures(){
+      const out = { total: 0, protected: 0, items: [] };
+      if(!currentModel) return out;
+      // Always read from the live input text so the verdict reflects what the
+      // user has typed, even before they click "Update boxes".
+      const boxes = readBoxesInputs();
+      const columns = readColumnsInputs();
+
+      (boxes || []).forEach((b, i) => {
+        if(!(b.boxHeight > 0)) return; // zero-height placeholder boxes are not real structures
+        const corners = [[b.boxX1,b.boxY1],[b.boxX2,b.boxY2],[b.boxX3,b.boxY3],[b.boxX4,b.boxY4]];
+        let worst = null; // worst = highest clearance deficit
+        corners.forEach(c => {
+          const info = pointInfoOnModel(c[0], c[1], b.boxHeight, currentModel);
+          if(!info) return;
+          const margin = info.zSphere - b.boxHeight; // >0 means protected
+          if(worst === null || margin < worst.margin) worst = { margin, x: c[0], y: c[1] };
+        });
+        out.total++;
+        const ok = worst !== null && worst.margin >= -1e-9;
+        if(ok) out.protected++;
+        out.items.push({ kind: 'Box', idx: i + 1, ok, margin: worst ? worst.margin : NaN });
+      });
+
+      (columns || []).forEach((c, i) => {
+        if(!(c.colHeight > 0)) return; // zero-height placeholder columns are not real structures
+        const info = pointInfoOnModel(c.colX, c.colY, c.colHeight, currentModel);
+        out.total++;
+        const ok = info !== null && (info.zSphere - c.colHeight) >= -1e-9;
+        if(ok) out.protected++;
+        out.items.push({ kind: 'Column', idx: i + 1, ok, margin: info ? info.zSphere - c.colHeight : NaN });
+      });
+      return out;
+    }
+
+    function rspUpdateResults(){
+      if(!currentModel) return;
+      const m = currentModel;
+      const set = (id, txt, cls) => {
+        const el = document.getElementById(id);
+        if(!el) return;
+        el.textContent = txt;
+        el.className = cls || '';
+      };
+      set('res-poles', String(m.points.length));
+      set('res-patches', String(m.patches.length));
+      set('res-radius', m.radius.toFixed(2) + ' m');
+      if(m.globalLowest) set('res-lowest', m.globalLowest[2].toFixed(2) + ' m', 'ok');
+      set('res-sag', (m.globalMaxSag !== null && m.globalMaxSag !== undefined) ? m.globalMaxSag.toFixed(2) + ' m' : '—');
+      const cov = rspCheckStructures();
+      const el = document.getElementById('res-protected');
+      if(el){
+        if(cov.total === 0){ el.textContent = 'none added'; el.className = ''; }
+        else if(cov.protected === cov.total){ el.textContent = cov.protected + ' / ' + cov.total + ' ✓'; el.className = 'ok'; }
+        else { el.textContent = cov.protected + ' / ' + cov.total + ' ✗'; el.className = 'bad'; }
+      }
+      window.__rspCoverage = cov;
+    }
+
+    /* ---------- 3D scene polish ---------- */
+    function rspSceneRange(m, boxModels, columnModels){
+      // Frame the ACTUAL protection structure (poles, boxes, columns, lowest
+      // point) instead of the full patch spheres, so large-R scenes don't zoom
+      // out to fit invisible 45 m spheres and make the model look tiny.
+      const xs = m.points.map(p => p[0]);
+      const ys = m.points.map(p => p[1]);
+      const zs = [0];
+      m.points.forEach(p => zs.push(p[2]));
+      (boxModels || []).forEach(b => {
+        [b.boxX1,b.boxX2,b.boxX3,b.boxX4].forEach(v => xs.push(v));
+        [b.boxY1,b.boxY2,b.boxY3,b.boxY4].forEach(v => ys.push(v));
+        zs.push(b.boxHeight || 0);
+      });
+      (columnModels || []).forEach(c => {
+        xs.push(c.colX - c.colRadius, c.colX + c.colRadius);
+        ys.push(c.colY - c.colRadius, c.colY + c.colRadius);
+        zs.push(c.colHeight || 0);
+      });
+      if(m.globalLowest) zs.push(m.globalLowest[2]);
+      // a little headroom above the tallest element
+      const zTop = Math.max.apply(null, zs);
+      zs.push(zTop + 0.15 * Math.max(zTop, 1));
+      const padX = 0.12 * Math.max.apply(null, xs.map(v => Math.abs(v))) + 0.5;
+      const padY = 0.12 * Math.max.apply(null, ys.map(v => Math.abs(v))) + 0.5;
+      const x0 = Math.min.apply(null, xs) - padX, x1 = Math.max.apply(null, xs) + padX;
+      const y0 = Math.min.apply(null, ys) - padY, y1 = Math.max.apply(null, ys) + padY;
+      const z0 = Math.min(0, Math.min.apply(null, zs)), z1 = Math.max.apply(null, zs);
+      return { x: [x0, x1], y: [y0, y1], z: [z0, z1] };
+    }
+
+    function rspPolishSceneFigure(fig, boxModels, columnModels){
+      if(!fig || !fig.layout || !fig.layout.scene) return fig;
+      const m = currentModel;
+      const unit = (document.getElementById('model-unit') && document.getElementById('model-unit').value) || 'm';
+      const s = fig.layout.scene;
+      // tighter, structure-based framing (only when full spheres are hidden)
+      const spheresHidden = !(m.showSphereMode === 'on') && !(m.showArcSpheres === 'on' || m.showArcSpheres === 'only');
+      if(spheresHidden){
+        const r = rspSceneRange(m, boxModels, columnModels);
+        s.xaxis.range = r.x; s.yaxis.range = r.y; s.zaxis.range = r.z;
+      }
+      s.xaxis = s.xaxis || {}; s.yaxis = s.yaxis || {}; s.zaxis = s.zaxis || {};
+      s.xaxis.title = 'x (' + unit + ')';
+      s.yaxis.title = 'y (' + unit + ')';
+      s.zaxis.title = 'height z (' + unit + ')';
+      s.xaxis.showgrid = true; s.yaxis.showgrid = true; s.zaxis.showgrid = true;
+      s.xaxis.gridcolor = '#e2e8f0'; s.yaxis.gridcolor = '#e2e8f0'; s.zaxis.gridcolor = '#e2e8f0';
+      s.xaxis.backgroundcolor = '#f8fafc'; s.yaxis.backgroundcolor = '#f8fafc'; s.zaxis.backgroundcolor = '#f8fafc';
+      s.xaxis.zerolinecolor = '#cbd5e1'; s.yaxis.zerolinecolor = '#cbd5e1'; s.zaxis.zerolinecolor = '#cbd5e1';
+
+      const cov = window.__rspCoverage;
+      const itemOk = (kind, idx) => {
+        if(!cov) return null;
+        const it = cov.items.find(x => x.kind === kind && x.idx === idx);
+        return it ? it.ok : null;
+      };
+
+      // color structures by protection verdict.
+      // Trace layout from buildSceneFigure: a mesh3d named "Box N" is
+      // immediately followed by its 12 edge line traces (unnamed scatter3d
+      // lines); a surface named "Column N" is immediately followed by its
+      // top-rim line trace. We track that ordering to recolor the edges.
+      let pendingBoxEdges = 0, pendingBoxIdx = 0, pendingColumnRim = false, pendingColumnIdx = 0;
+      fig.data.forEach(tr => {
+        if(!tr) return;
+        if(pendingBoxEdges > 0){
+          pendingBoxEdges--;
+          if(tr.type === 'scatter3d' && tr.line){
+            const ok = itemOk('Box', pendingBoxIdx);
+            if(ok === true) tr.line.color = '#15803d';
+            else if(ok === false) tr.line.color = '#b91c1c';
+          }
+          return;
+        }
+        if(pendingColumnRim){
+          pendingColumnRim = false;
+          if(tr.type === 'scatter3d' && tr.line){
+            const ok = itemOk('Column', pendingColumnIdx);
+            if(ok === true) tr.line.color = '#15803d';
+            else if(ok === false) tr.line.color = '#b91c1c';
+          }
+        }
+        const boxName = tr.name && /^Box (\d+)$/.exec(tr.name);
+        if(boxName && tr.type === 'mesh3d'){
+          pendingBoxEdges = 12;
+          pendingBoxIdx = Number(boxName[1]);
+          const ok = itemOk('Box', pendingBoxIdx);
+          if(ok === true){ tr.color = '#16a34a'; tr.opacity = 0.16; }
+          else if(ok === false){ tr.color = '#dc2626'; tr.opacity = 0.22; }
+          return;
+        }
+        const colName = tr.name && /^Column (\d+)$/.exec(tr.name);
+        if(colName && tr.type === 'surface'){
+          pendingColumnRim = true;
+          pendingColumnIdx = Number(colName[1]);
+          const ok = itemOk('Column', pendingColumnIdx);
+          if(ok === true){ tr.colorscale = [[0,'#16a34a'],[1,'#16a34a']]; }
+          else if(ok === false){ tr.colorscale = [[0,'#dc2626'],[1,'#dc2626']]; }
+        }
+      });
+
+      // annotations: global lowest point + structure verdicts
+      const anns = [];
+      if(m && m.globalLowest){
+        const gl = m.globalLowest;
+        anns.push({
+          x: gl[0], y: gl[1], z: gl[2],
+          text: 'lowest: ' + formatValue(gl[2], m, true) + ' ' + unit,
+          showarrow: true, arrowhead: 2, arrowsize: 0.8, arrowcolor: '#0f172a',
+          font: { size: 12, color: '#0f172a' },
+          bgcolor: 'rgba(255,255,255,0.85)', bordercolor: '#0f172a', borderwidth: 1
+        });
+      }
+      if(cov){
+        (boxModels || []).forEach((b, i) => {
+          const cx = (b.boxX1 + b.boxX2 + b.boxX3 + b.boxX4) / 4;
+          const cy = (b.boxY1 + b.boxY2 + b.boxY3 + b.boxY4) / 4;
+          const it = cov.items.find(x => x.kind === 'Box' && x.idx === i + 1);
+          if(!it) return;
+          anns.push({
+            x: cx, y: cy, z: b.boxHeight,
+            text: (it.ok ? '✓ Box ' + (i+1) + ' protected' : '✗ Box ' + (i+1) + ' NOT protected') + (Number.isFinite(it.margin) ? ' (' + it.margin.toFixed(2) + ' m clearance)' : ''),
+            showarrow: false,
+            font: { size: 12, color: it.ok ? '#15803d' : '#b91c1c' },
+            bgcolor: 'rgba(255,255,255,0.9)', bordercolor: it.ok ? '#16a34a' : '#dc2626', borderwidth: 1.5
+          });
+        });
+        (columnModels || []).forEach((c, i) => {
+          const it = cov.items.find(x => x.kind === 'Column' && x.idx === i + 1);
+          if(!it) return;
+          anns.push({
+            x: c.colX, y: c.colY, z: c.colHeight,
+            text: (it.ok ? '✓ Column ' + (i+1) + ' protected' : '✗ Column ' + (i+1) + ' NOT protected'),
+            showarrow: false,
+            font: { size: 11, color: it.ok ? '#15803d' : '#b91c1c' },
+            bgcolor: 'rgba(255,255,255,0.9)', bordercolor: it.ok ? '#16a34a' : '#dc2626', borderwidth: 1.5
+          });
+        });
+      }
+      if(anns.length) fig.layout.annotations = anns;
+      return fig;
+    }
+
+    /* ---------- 2D heatmap polish ---------- */
+    function rspPolishHeatmapFigure(fig){
+      if(!fig || !fig.layout) return fig;
+      const m = currentModel;
+      const unit = (document.getElementById('model-unit') && document.getElementById('model-unit').value) || 'm';
+      fig.layout.xaxis = fig.layout.xaxis || {};
+      fig.layout.yaxis = fig.layout.yaxis || {};
+      fig.layout.xaxis.title = 'x (' + unit + ')';
+      fig.layout.yaxis.title = 'y (' + unit + ')';
+      fig.layout.xaxis.gridcolor = '#e2e8f0';
+      fig.layout.yaxis.gridcolor = '#e2e8f0';
+      fig.layout.xaxis.zerolinecolor = '#cbd5e1';
+      fig.layout.yaxis.zerolinecolor = '#cbd5e1';
+      fig.layout.plot_bgcolor = '#ffffff';
+      fig.layout.paper_bgcolor = '#ffffff';
+      // colorbar for the first heatmap trace
+      const hm = fig.data.find(t => t.type === 'heatmap');
+      if(hm && hm.showscale){
+        hm.colorbar = Object.assign(hm.colorbar || {}, { title: 'z<sub>sphere</sub> (' + unit + ')', title_side: 'top', len: 0.9 });
+      }
+      // legend for structures
+      const hasBox = fig.data.some(t => t.hovertemplate && /Box 1 footprint/.test(t.hovertemplate));
+      if(hasBox && !fig.data.some(t => t.showlegend === true)){
+        fig.data.push({
+          type: 'scatter', x: [null], y: [null], mode: 'lines',
+          line: { color: 'black', width: 3, dash: 'dash' },
+          name: 'structure footprint', showlegend: true,
+          legendgroup: 'structures', hoverinfo: 'skip'
+        });
+        fig.layout.legend = { orientation: 'h', y: 1.08, x: 0 };
+      }
+      return fig;
+    }
+
+    /* ---------- wire everything up ---------- */
+    (function rspInit(){
+      // card collapse
+      document.querySelectorAll('[data-toggle-card]').forEach(head => {
+        head.addEventListener('click', () => head.parentElement.classList.toggle('collapsed'));
+      });
+      // modals
+      const helpBtn = document.getElementById('btn-help');
+      const exBtn = document.getElementById('btn-examples');
+      if(helpBtn) helpBtn.addEventListener('click', () => rspOpenModal('help-modal'));
+      if(exBtn) exBtn.addEventListener('click', () => rspOpenModal('examples-modal'));
+      document.querySelectorAll('[data-close-modal]').forEach(b => b.addEventListener('click', rspCloseModals));
+      document.querySelectorAll('.modal-backdrop').forEach(bd => bd.addEventListener('click', e => { if(e.target === bd) rspCloseModals(); }));
+      document.addEventListener('keydown', e => { if(e.key === 'Escape') rspCloseModals(); });
+      // tabs
+      document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => rspSetView(t.dataset.view)));
+      // fit view (reset 3D camera)
+      const fitBtn = document.getElementById('btn-fit');
+      if(fitBtn) fitBtn.addEventListener('click', () => {
+        try {
+          Plotly.relayout('scene-plot', {
+            'scene.camera': { eye: {x:1.7, y:1.7, z:1.25}, center: {x:0, y:0, z:0} }
+          });
+        } catch(e){}
+      });
+      // LPL presets
+      document.querySelectorAll('.preset-btn[data-lpl]').forEach(b => b.addEventListener('click', () => {
+        const r = { I: 20, II: 45, III: 60, IV: 100 }[b.dataset.lpl];
+        document.getElementById('radius').value = r;
+      }));
+      // examples
+      rspInitExamples();
+      // FIX (UX bug): "Update geometry" / "Update boxes" used the CACHED
+      // currentBoxes/currentColumns (from page init) instead of the text the
+      // user typed, so typed-in structures were invisible until you clicked
+      // the sub-update button. Force a fresh read from the input text on every
+      // model rebuild.
+      const origBuildModel = window.buildModel;
+      if(typeof origBuildModel === 'function'){
+        window.buildModel = function(inputs, boxModels, columnModels){
+          try {
+            currentBoxes = readBoxesInputs();
+            currentColumns = readColumnsInputs();
+            boxModels = currentBoxes;
+            columnModels = currentColumns;
+          } catch(e){ /* keep caller values if parsing fails */ }
+          return origBuildModel(inputs, boxModels, columnModels);
+        };
+      }
+
+      // Wrap Plotly.react so every refresh gets results + figure polish.
+      // (internal code calls Plotly.react through the global Plotly object,
+      // so patching the method is visible to all call sites; we mutate the
+      // incoming figure in place and never re-react, so no recursion.)
+      const origReact = Plotly.react;
+      Plotly.react = function(div, data, layout, config){
+        try {
+          const id = (typeof div === 'string') ? div : (div && div.id);
+          if(id === 'scene-plot' && data && layout && currentModel){
+            rspUpdateResults();
+            rspPolishSceneFigure({ data, layout }, currentBoxes, currentColumns);
+          } else if(id === 'heatmap-plot' && data && layout && currentModel){
+            rspPolishHeatmapFigure({ data, layout });
+          }
+        } catch(e){ console.warn('rsp polish failed:', e); }
+        return origReact(div, data, layout, config);
+      };
+      // apply polish to the initial render (which happened before this block ran)
+      try { refreshPlots(); } catch(e){}
+    })();
+  </script>
+
 </body>
 </html>
