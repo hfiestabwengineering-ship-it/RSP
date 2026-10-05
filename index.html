@@ -7717,8 +7717,12 @@ function createColumnPanel(index, vals){
       const m = currentModel;
       const unit = (document.getElementById('model-unit') && document.getElementById('model-unit').value) || 'm';
       const s = fig.layout.scene;
-      // tighter, structure-based framing (only when full spheres are hidden)
-      const spheresHidden = !(m.showSphereMode === 'on') && !(m.showArcSpheres === 'on' || m.showArcSpheres === 'only');
+      // tighter, structure-based framing (only when full spheres are hidden).
+      // IMPORTANT: must cover EVERY mode that renders a sphere, including the
+      // 'selected' variants — otherwise the structure-only ranges override the
+      // full-extent ranges and clip the selected sphere (bug, fixed 2026-10-05).
+      const spheresHidden = !['on','selected'].includes(m.showSphereMode)
+        && !['on','only','selected','only-selected'].includes(m.showArcSpheres);
       if(spheresHidden){
         const r = rspSceneRange(m, boxModels, columnModels);
         s.xaxis.range = r.x; s.yaxis.range = r.y; s.zaxis.range = r.z;
