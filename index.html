@@ -6127,6 +6127,26 @@ function createColumnPanel(index, vals){
         });
       }
 
+      // FIX (spheres clipped): when full spheres are visible, their complete
+      // extents must be inside the axis ranges or the mesh gets cut off at
+      // the plot boundary. buildSceneFigure already pushes center±radius for
+      // every patch sphere into xs/ys/zs; for 2-pole spheres we add them here.
+      if(['on','only','selected','only-selected'].includes(model.showArcSpheres)){
+        const edges = getUniqueEdgesFromTriangles(model.triangles);
+        edges.forEach(edge=>{
+          const key = edge[0]+'_'+edge[1];
+          const reverseKey = edge[1]+'_'+edge[0];
+          const wantsSelected = model.showArcSpheres === 'selected' || model.showArcSpheres === 'only-selected';
+          if(wantsSelected && String(model.selectedArcSphere||'') !== key && String(model.selectedArcSphere||'') !== reverseKey) return;
+          const p1 = model.points[edge[0]];
+          const p2 = model.points[edge[1]];
+          const arc = sampleArcBetweenPoles(p1, p2, model.radius, 4);
+          if(!arc || !arc.center) return;
+          xs.push(arc.center[0]-model.radius, arc.center[0]+model.radius);
+          ys.push(arc.center[1]-model.radius, arc.center[1]+model.radius);
+          zs.push(arc.center[2]-model.radius, arc.center[2]+model.radius);
+        });
+      }
       const xMin=Math.min(...xs), xMax=Math.max(...xs), yMin=Math.min(...ys), yMax=Math.max(...ys), zMin=Math.min(...zs), zMax=Math.max(...zs);
       const midX=0.5*(xMin+xMax), midY=0.5*(yMin+yMax), midZ=0.5*(zMin+zMax), halfSpan=0.55*Math.max(xMax-xMin,yMax-yMin,zMax-zMin,1.0);
 
@@ -6260,7 +6280,7 @@ function createColumnPanel(index, vals){
 
       model.points.forEach((p,idx)=> data.push({ type:'scatter3d', x:[p[0],p[0]], y:[p[1],p[1]], z:[0,p[2]], mode:'lines+markers', line:{width:7}, marker:{size:4}, name:`Pole ${idx+1}` }));
 
-      return { data, layout:{ title:`Merged Spherical Patch Surface (${(model.performanceMode||'auto').toUpperCase()})`, scene:{ xaxis:{title:'x',range:[midX-halfSpan,midX+halfSpan]}, yaxis:{title:'y',range:[midY-halfSpan,midY+halfSpan]}, zaxis:{title:'z',range:[midZ-halfSpan,midZ+halfSpan]}, aspectmode:(model.viewMode === 'true-sphere' ? 'manual' : 'data'), aspectratio:(model.viewMode === 'true-sphere' ? {x:1,y:1,z:1} : undefined), camera:{ projection:{type:'orthographic'}, eye:{x:1.7,y:1.7,z:1.25} }, dragmode:'orbit' }, margin:{l:0,r:0,b:0,t:40} } };
+      return { data, layout:{ title:`Merged Spherical Patch Surface (${(model.performanceMode||'auto').toUpperCase()})`, scene:{ xaxis:{title:'x',range:[midX-halfSpan,midX+halfSpan]}, yaxis:{title:'y',range:[midY-halfSpan,midY+halfSpan]}, zaxis:{title:'z',range:[midZ-halfSpan,midZ+halfSpan]}, aspectmode:(model.viewMode === 'true-sphere' ? 'cube' : 'data'), camera:{ projection:{type:'orthographic'}, eye:{x:1.7,y:1.7,z:1.25} }, dragmode:'orbit' }, margin:{l:0,r:0,b:0,t:40} } };
     }
 
     function buildHeatmapLabels(grid, step, model){
